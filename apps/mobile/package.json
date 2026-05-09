@@ -2,9 +2,11 @@
   "name": "@casita/mobile",
   "version": "0.1.0",
   "private": true,
-  "main": "node_modules/expo/AppEntry.js",
+  "main": "expo/AppEntry",
   "scripts": {
     "start": "expo start --port 3002",
+    "start:tunnel": "expo start --port 3002 --tunnel",
+    "start:lan": "expo start --port 3002 --host lan",
     "android": "expo start --android --port 3002",
     "ios": "expo start --ios --port 3002",
     "web": "expo start --web --port 3002",

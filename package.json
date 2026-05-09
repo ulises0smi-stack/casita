@@ -1,0 +1,28 @@
+{
+  "name": "casita",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @casita/api",
+    "dev:web": "npm run dev -w @casita/web",
+    "dev:mobile": "npm --workspace @casita/mobile exec expo start",
+    "build": "npm run build --workspaces --if-present",
+    "build:api": "npm run build -w @casita/api",
+    "build:web": "npm run build -w @casita/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "start:mobile": "npm --workspace @casita/mobile exec expo start",
+    "dev:all": "concurrently -n api,web,mobile -c blue,green,magenta \"npm run dev:api\" \"npm run dev:web\" \"npm run dev:mobile\""
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

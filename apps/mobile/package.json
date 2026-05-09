@@ -1,0 +1,28 @@
+{
+  "name": "@casita/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@casita/api-client": "0.1.0",
+    "@casita/shared": "0.1.0",
+    "expo": "^49.0.23",
+    "expo-status-bar": "~1.6.0",
+    "react": "18.2.0",
+    "react-native": "0.72.10"
+  },
+  "devDependencies": {
+    "@types/react": "~18.2.14",
+    "typescript": "^5.7.2",
+    "metro": "0.76.8",
+    "metro-core": "0.76.8",
+    "metro-resolver": "0.76.8"
+  }
+}

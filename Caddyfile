@@ -1,0 +1,7 @@
+api.tudominio.com {
+  reverse_proxy api:3000
+}
+
+app.tudominio.com {
+  reverse_proxy web:3000
+}

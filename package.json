@@ -18,7 +18,7 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "start:mobile": "npm run start -w @casita/mobile",
-    "dev:all": "concurrently -n api,web,mobile -c blue,green,magenta \"npm run dev:api\" \"npm run dev:web\" \"npm run dev:mobile\""
+    "dev:all": "concurrently -n api,web,mobile -c blue,green,magenta \"npm run dev:api\" \"npm run dev:web\" \"npm run dev:mobile:tunnel\""
   },
   "engines": {
     "node": ">=20.0.0",

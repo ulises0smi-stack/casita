@@ -2,7 +2,7 @@
   "name": "@casita/mobile",
   "version": "0.1.0",
   "private": true,
-  "main": "expo/AppEntry",
+  "main": "index.js",
   "scripts": {
     "start": "expo start --port 3002",
     "start:tunnel": "expo start --port 3002 --tunnel",

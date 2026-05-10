@@ -1,1 +1,1 @@
-export * from "./client";
+export { ApiClient, createAuthClient, type ApiClientOptions, type AuthClient, type RegisterInput, type LoginInput, type AuthResponse } from "./client.js";

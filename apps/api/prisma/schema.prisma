@@ -6,3 +6,204 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
+
+enum MemberRole {
+  admin
+  member
+}
+
+enum CategoryType {
+  income
+  expense
+}
+
+enum ReceiptStatus {
+  pending
+  uploaded
+  failed
+  deleted
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  firstName     String?
+  lastName      String?
+  avatar        String?
+  memberships   Member[]  @relation("UserToMember")
+  sessions      Session[] @relation("UserToSession")
+  expensesAdded Expense[] @relation("AddedByUser")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Session {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation("UserToSession", fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokenHash String   @unique
+  deviceId         String?
+  deviceName       String?
+  ipAddress        String?
+  userAgent        String?
+  revokedAt        DateTime?
+  lastActivityAt   DateTime @default(now())
+  expiresAt        DateTime
+  createdAt        DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Household {
+  id              String     @id @default(cuid())
+  name            String
+  description     String?
+  inviteCode      String     @unique @default(cuid())
+  defaultCurrency String     @default("EUR")
+  createdBy       String
+  members         Member[]   @relation("HouseholdToMember")
+  categories      Category[] @relation("HouseholdToCategory")
+  expenses        Expense[]  @relation("HouseholdToExpense")
+  budgets         Budget[]   @relation("HouseholdToBudget")
+  receipts        Receipt[]  @relation("HouseholdToReceipt")
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  deletedAt       DateTime?
+  version         Int        @default(1)
+
+  @@index([createdBy])
+  @@index([updatedAt])
+  @@index([deletedAt])
+}
+
+model Member {
+  id          String     @id @default(cuid())
+  householdId String
+  userId      String
+  role        MemberRole @default(member)
+  household   Household  @relation("HouseholdToMember", fields: [householdId], references: [id], onDelete: Cascade)
+  user        User       @relation("UserToMember", fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt    DateTime   @default(now())
+  deletedAt   DateTime?
+  updatedAt   DateTime   @updatedAt
+  version     Int        @default(1)
+
+  @@unique([householdId, userId])
+  @@index([householdId])
+  @@index([userId])
+  @@index([updatedAt])
+}
+
+model Category {
+  id          String       @id @default(cuid())
+  householdId String
+  name        String
+  icon        String?
+  color       String?
+  type        CategoryType @default(expense)
+  order       Int          @default(0)
+  household   Household    @relation("HouseholdToCategory", fields: [householdId], references: [id], onDelete: Cascade)
+  expenses    Expense[]    @relation("CategoryToExpense")
+  budgets     Budget[]     @relation("CategoryToBudget")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+  version     Int          @default(1)
+
+  @@unique([householdId, name])
+  @@index([householdId])
+  @@index([type])
+  @@index([updatedAt])
+}
+
+model Expense {
+  id          String    @id @default(cuid())
+  householdId String
+  categoryId  String
+  addedBy     String
+  amount      Decimal   @db.Decimal(12, 2)
+  currency    String    @default("EUR")
+  description String?
+  date        DateTime
+  household   Household @relation("HouseholdToExpense", fields: [householdId], references: [id], onDelete: Cascade)
+  category    Category  @relation("CategoryToExpense", fields: [categoryId], references: [id])
+  addedByUser User      @relation("AddedByUser", fields: [addedBy], references: [id])
+  receipts    Receipt[] @relation("ExpenseToReceipt")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  version     Int       @default(1)
+
+  @@index([householdId, date])
+  @@index([categoryId])
+  @@index([addedBy])
+  @@index([updatedAt])
+  @@index([deletedAt])
+}
+
+model Receipt {
+  id           String        @id @default(cuid())
+  expenseId    String
+  householdId  String
+  storageKey   String        @unique
+  mimeType     String
+  sizeBytes    Int
+  originalName String?
+  status       ReceiptStatus @default(pending)
+  ocrStatus    String        @default("skipped")
+  ocrText      String?
+  expense      Expense       @relation("ExpenseToReceipt", fields: [expenseId], references: [id], onDelete: Cascade)
+  household    Household     @relation("HouseholdToReceipt", fields: [householdId], references: [id], onDelete: Cascade)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
+  version      Int           @default(1)
+
+  @@index([expenseId])
+  @@index([householdId])
+  @@index([storageKey])
+  @@index([status])
+  @@index([updatedAt])
+}
+
+model Budget {
+  id          String    @id @default(cuid())
+  householdId String
+  categoryId  String?
+  limitAmount Decimal   @db.Decimal(12, 2)
+  currency    String    @default("EUR")
+  month       Int
+  year        Int
+  household   Household @relation("HouseholdToBudget", fields: [householdId], references: [id], onDelete: Cascade)
+  category    Category? @relation("CategoryToBudget", fields: [categoryId], references: [id])
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  version     Int       @default(1)
+
+  @@unique([householdId, categoryId, month, year, currency])
+  @@index([householdId, year, month])
+  @@index([categoryId])
+  @@index([updatedAt])
+}
+
+model ClientMutation {
+  id               String   @id @default(cuid())
+  userId           String
+  householdId      String?
+  clientMutationId String   @unique
+  operation        String
+  entity           String
+  entityId         String?
+  requestHash      String?
+  responseJson     Json?
+  createdAt        DateTime @default(now())
+
+  @@index([userId])
+  @@index([householdId])
+  @@index([clientMutationId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+}
